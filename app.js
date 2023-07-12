@@ -7,15 +7,17 @@ function handleFormSubmit(event) {
 
   // Retrieve the user input values
   const nameInput = document.getElementById('name');
+  const phoneInput = document.getElementById('Phone');
   const emailInput = document.getElementById('email');
 
   const name = nameInput.value;
+  const phone = phoneInput.value;
   const email = emailInput.value;
-
 
   // Create an object to store the user details
   const userDetails = {
     name: name,
+    phone: phone,
     email: email
   };
 
@@ -30,6 +32,7 @@ function handleFormSubmit(event) {
 
   // Clear the form inputs
   nameInput.value = '';
+  phoneInput.value = '';
   emailInput.value = '';
 
   // Display success message
@@ -84,11 +87,34 @@ function refreshUserList() {
   const users = JSON.parse(localStorage.getItem('users')) || [];
 
   // Create list items for each user and append to the user list
-  users.forEach(function (user) {
+  users.forEach(function (user, index) {
     const li = document.createElement('li');
-    li.appendChild(document.createTextNode(`Name: ${user.name}, Email: ${user.email}`));
+    li.appendChild(document.createTextNode(`Name: ${user.name}, Phone: ${user.phone}, Email: ${user.email}`));
+
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Delete';
+    deleteButton.addEventListener('click', function() {
+      deleteUser(index);
+    });
+
+    li.appendChild(deleteButton);
     userList.appendChild(li);
   });
+}
+
+// Function to delete a user
+function deleteUser(index) {
+  // Retrieve existing user details from local storage
+  const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+
+  // Remove the user at the specified index
+  existingUsers.splice(index, 1);
+
+  // Store the updated user details in local storage
+  localStorage.setItem('users', JSON.stringify(existingUsers));
+
+  // Refresh the user list
+  refreshUserList();
 }
 
 // Add event listener for form submission
