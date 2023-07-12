@@ -43,7 +43,7 @@
     display: block;
   }
   
-  #my-form input[type='text'] {
+  #my-form input[type='text' ] {
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
