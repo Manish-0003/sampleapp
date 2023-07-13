@@ -14,18 +14,39 @@ function handleFormSubmit(event) {
   const phone = phoneInput.value;
   const email = emailInput.value;
 
-  // Create an object to store the user details
-  const userDetails = {
-    name: name,
-    phone: phone,
-    email: email
-  };
-
   // Retrieve existing user details from local storage
   const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
 
-  // Add the new user details to the existing users
-  existingUsers.push(userDetails);
+  // Check if there is an edited user index stored in local storage
+  const editedUserIndex = localStorage.getItem('editedUserIndex');
+
+  if (editedUserIndex !== null) {
+    // Update the existing user details at the edited index
+    existingUsers[editedUserIndex] = {
+      name: name,
+      phone: phone,
+      email: email
+    };
+
+    // Remove the edited user index from local storage
+    localStorage.removeItem('editedUserIndex');
+
+    // Display success message for user update
+    showSuccess('User details updated successfully');
+  } else {
+    // Create an object to store the new user details
+    const userDetails = {
+      name: name,
+      phone: phone,
+      email: email
+    };
+
+    // Add the new user details to the existing users
+    existingUsers.push(userDetails);
+
+    // Display success message for new user addition
+    showSuccess('User details stored successfully');
+  }
 
   // Store the updated user details in local storage
   localStorage.setItem('users', JSON.stringify(existingUsers));
@@ -34,9 +55,6 @@ function handleFormSubmit(event) {
   nameInput.value = '';
   phoneInput.value = '';
   emailInput.value = '';
-
-  // Display success message
-  showSuccess('User details stored successfully');
 
   // Refresh the user list
   refreshUserList();
@@ -91,21 +109,56 @@ function refreshUserList() {
     const li = document.createElement('li');
     li.appendChild(document.createTextNode(`Name: ${user.name}, Phone: ${user.phone}, Email: ${user.email}`));
 
+    const editButton = document.createElement('button');
+    editButton.textContent = 'Edit';
+    editButton.addEventListener('click', function() {
+      editUser(index);
+    });
+
     const deleteButton = document.createElement('button');
     deleteButton.textContent = 'Delete';
     deleteButton.addEventListener('click', function() {
       deleteUser(index);
     });
 
+    li.appendChild(editButton);
     li.appendChild(deleteButton);
     userList.appendChild(li);
   });
+}
+
+// Function to edit a user
+function editUser(index) {
+  // Retrieve existing user details from local storage
+  const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+
+  // Retrieve the user details at the specified index
+  const user = existingUsers[index];
+
+  // Populate the form inputs with the user details
+  const nameInput = document.getElementById('name');
+  const phoneInput = document.getElementById('Phone');
+  const emailInput = document.getElementById('email');
+
+  nameInput.value = user.name;
+  phoneInput.value = user.phone;
+  emailInput.value = user.email;
+
+  // Store the index of the user being edited in local storage
+  localStorage.setItem('editedUserIndex', index.toString());
 }
 
 // Function to delete a user
 function deleteUser(index) {
   // Retrieve existing user details from local storage
   const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+
+  // Check if the user being deleted is the one being edited
+  const editedUserIndex = localStorage.getItem('editedUserIndex');
+  if (editedUserIndex !== null && index === parseInt(editedUserIndex)) {
+    // Remove the edited user index from local storage
+    localStorage.removeItem('editedUserIndex');
+  }
 
   // Remove the user at the specified index
   existingUsers.splice(index, 1);
